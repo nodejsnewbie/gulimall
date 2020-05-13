@@ -1,0 +1,5 @@
+http://localhost:9000/order/order/list
+
+http://localhost:10000/product/brand/list
+
+http://localhost:11000/ware/purchase/list
