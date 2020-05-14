@@ -1,7 +1,6 @@
-package com.atguigu.gulimall.coupon.controller;
+package com.atguigu.gulimall.member.controller;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,42 +10,32 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.atguigu.gulimall.coupon.entity.CouponEntity;
-import com.atguigu.gulimall.coupon.service.CouponService;
+import com.atguigu.gulimall.member.entity.MemberCollectSubjectEntity;
+import com.atguigu.gulimall.member.service.MemberCollectSubjectService;
 import com.atguigu.common.utils.PageUtils;
 import com.atguigu.common.utils.R;
 
 
 
 /**
- * 优惠券信息
+ * 会员收藏的专题活动
  *
  * @author cuiyue
  * @email 380920705@qq.coom
- * @date 2020-05-13 15:35:45
+ * @date 2020-05-14 09:57:12
  */
 @RestController
-@RequestMapping("coupon/coupon")
-public class CouponController {
+@RequestMapping("member/membercollectsubject")
+public class MemberCollectSubjectController {
     @Autowired
-    private CouponService couponService;
-
-    /**
-     * 得到会员的优惠券
-     */
-    @RequestMapping("/member/list")
-    public R memberCoupon(){
-        CouponEntity couponEntity = new CouponEntity();
-        couponEntity.setCouponName("满100减15");
-        return R.ok().put("coupons", Collections.singletonList(couponEntity));
-    }
+    private MemberCollectSubjectService memberCollectSubjectService;
 
     /**
      * 列表
      */
     @RequestMapping("/list")
     public R list(@RequestParam Map<String, Object> params){
-        PageUtils page = couponService.queryPage(params);
+        PageUtils page = memberCollectSubjectService.queryPage(params);
 
         return R.ok().put("page", page);
     }
@@ -57,17 +46,17 @@ public class CouponController {
      */
     @RequestMapping("/info/{id}")
     public R info(@PathVariable("id") Long id){
-		CouponEntity coupon = couponService.getById(id);
+		MemberCollectSubjectEntity memberCollectSubject = memberCollectSubjectService.getById(id);
 
-        return R.ok().put("coupon", coupon);
+        return R.ok().put("memberCollectSubject", memberCollectSubject);
     }
 
     /**
      * 保存
      */
     @RequestMapping("/save")
-    public R save(@RequestBody CouponEntity coupon){
-		couponService.save(coupon);
+    public R save(@RequestBody MemberCollectSubjectEntity memberCollectSubject){
+		memberCollectSubjectService.save(memberCollectSubject);
 
         return R.ok();
     }
@@ -76,8 +65,8 @@ public class CouponController {
      * 修改
      */
     @RequestMapping("/update")
-    public R update(@RequestBody CouponEntity coupon){
-		couponService.updateById(coupon);
+    public R update(@RequestBody MemberCollectSubjectEntity memberCollectSubject){
+		memberCollectSubjectService.updateById(memberCollectSubject);
 
         return R.ok();
     }
@@ -87,7 +76,7 @@ public class CouponController {
      */
     @RequestMapping("/delete")
     public R delete(@RequestBody Long[] ids){
-		couponService.removeByIds(Arrays.asList(ids));
+		memberCollectSubjectService.removeByIds(Arrays.asList(ids));
 
         return R.ok();
     }
