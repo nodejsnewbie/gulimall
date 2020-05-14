@@ -8,6 +8,8 @@ spring:
     nacos:
       discovery:
         server-addr: 127.0.0.1:8848
+      config:
+        server-addr: 127.0.0.1:8848
   datasource:
     url: jdbc:mysql://59.110.44.147:3306/gulimall_ums
     driver-class-name: com.mysql.jdbc.Driver
