@@ -4,7 +4,13 @@ http://localhost:10000/product/brand/list
 
 http://localhost:11000/ware/purchase/list
 
-
 http://localhost:88?url=qq
 
 http://localhost:88?url=baidu
+
+http://localhost:10000/product/category/list/tree
+
+http://localhost:88/api/product/brand/list
+
+http://localhost:88/api/product/category/delete
+
