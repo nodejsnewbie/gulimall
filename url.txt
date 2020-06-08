@@ -14,3 +14,5 @@ http://localhost:88/api/product/brand/list
 
 http://localhost:88/api/product/category/delete
 
+//得到阿里oss签名
+http://localhost:88/api/thirdparty/oss/policy
