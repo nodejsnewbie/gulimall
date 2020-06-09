@@ -1,6 +1,8 @@
 http://localhost:9000/order/order/list
 
 http://localhost:10000/product/brand/list
+http://localhost:88/api/product/brand/list
+http://localhost:88/api/product/brand/save
 
 http://localhost:11000/ware/purchase/list
 
@@ -16,3 +18,5 @@ http://localhost:88/api/product/category/delete
 
 //得到阿里oss签名
 http://localhost:88/api/thirdparty/oss/policy
+
+
