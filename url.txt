@@ -23,3 +23,4 @@ http://localhost:88/api/product/category/delete
 http://localhost:88/api/thirdparty/oss/policy
 
 
+http://localhost:88/api/product/category/list/tree
