@@ -24,3 +24,6 @@ http://localhost:88/api/thirdparty/oss/policy
 
 
 http://localhost:88/api/product/category/list/tree
+
+//领取采购单 post请求 [1,2,3,4]//采购单id
+http://localhost:88/api/ware/purchase/received
