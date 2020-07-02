@@ -2,6 +2,8 @@ package com.atguigu.gulimall.product.service.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
+import com.atguigu.common.constant.ProductConstant;
 import com.atguigu.common.to.SkuHasStockVo;
 import com.atguigu.common.to.SkuReductionTo;
 import com.atguigu.common.to.SpuBoundTo;
@@ -9,6 +11,7 @@ import com.atguigu.common.to.es.SkuEsModel;
 import com.atguigu.common.utils.R;
 import com.atguigu.gulimall.product.entity.*;
 import com.atguigu.gulimall.product.feign.CouponFeignService;
+import com.atguigu.gulimall.product.feign.SearchFeignService;
 import com.atguigu.gulimall.product.feign.WareFeignService;
 import com.atguigu.gulimall.product.service.*;
 import com.atguigu.gulimall.product.vo.*;
@@ -57,6 +60,8 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
     CategoryService categoryService;
     @Autowired
     WareFeignService wareFeignService;
+    @Autowired
+    SearchFeignService searchFeignService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -259,7 +264,11 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         }).collect(Collectors.toList());
 
         //TODO 1. 发送远程调用，库存系统查询是否有库存
-        List<SkuHasStockVo> skuHasStockVos = wareFeignService.getSkuHasStock(skuIdList);
+        TypeReference<List<SkuHasStockVo>> typeReference = new TypeReference<List<SkuHasStockVo>>() {
+        };
+
+        R hasStockR = wareFeignService.getSkuHasStock(skuIdList);
+        List<SkuHasStockVo> skuHasStockVos = hasStockR.getData(typeReference);
         log.error("skuHasStockVos-->" + skuHasStockVos);
 
         Map<Long, Boolean> stockMap = null;
@@ -305,6 +314,14 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
             log.error("uoProduct->" + uoProduct);
         }
 
+        R r = searchFeignService.productStatusUp(uoProducts);
+        if (r.getCode() == 0) {
+            //todo 修改当前spu的状态
+            baseMapper.updateSpuStatus(spuId, ProductConstant.StatusEnum.SPU_UP.getCode());
+        } else {
+            // 远程调用失败
+            //todo 重复调动?
+        }
     }
 
 }

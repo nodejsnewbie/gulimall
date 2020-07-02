@@ -12,7 +12,7 @@ import java.util.List;
 public interface WareFeignService {
 
     @RequestMapping("ware/waresku/hasstock")
-    List<SkuHasStockVo> getSkuHasStock(@RequestBody List<Long> skuIds);
+    R getSkuHasStock(@RequestBody List<Long> skuIds);
 
     @RequestMapping("ware/waresku/test")
     R test();
