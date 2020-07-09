@@ -11,12 +11,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @RunWith(SpringRunner.class)
@@ -28,6 +31,9 @@ class GulimallProductApplicationTests {
 
 //    @Autowired
 //    private OSS ossClient;
+
+    @Autowired
+    StringRedisTemplate stringRedisTemplate;
 
     @Test
     void contextLoads() {
@@ -75,6 +81,15 @@ class GulimallProductApplicationTests {
 //            e.printStackTrace();
 //        }
 
+    }
+
+    @Test
+    void testStringRedisTemplate() {
+        ValueOperations<String, String> operations = stringRedisTemplate.opsForValue();
+        operations.set("hello", "world_" + UUID.randomUUID().toString());
+
+        String value = operations.get("hello");
+        System.out.println("value--->" + value);
     }
 
 }
