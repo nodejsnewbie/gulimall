@@ -12,6 +12,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -182,13 +183,18 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         return children;
     }
 
+    /**
+     * 1.解决缓存穿透：空结果缓存
+     * 2.解决缓存雪崩：设置过期时间(加随机值)
+     * 3.解决缓存击穿：加锁
+     */
     @Override
     public Map<String, List<Catelog2Vo>> getCatelogJson() {
         String catelogJSON = redisTemplate.opsForValue().get("catelogJSON");
         if (StringUtils.isEmpty(catelogJSON)) {
             Map<String, List<Catelog2Vo>> catelogJson = getCatelogJsonFromDb();
             String s = JSON.toJSONString(catelogJson);
-            redisTemplate.opsForValue().set("catelogJSON", s);
+            redisTemplate.opsForValue().set("catelogJSON", s, 1, TimeUnit.DAYS);
             System.out.println("没有缓存");
             return catelogJson;
         }
