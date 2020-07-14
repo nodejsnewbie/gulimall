@@ -8,6 +8,7 @@ import com.atguigu.gulimall.product.service.CategoryBrandRelationService;
 import com.atguigu.gulimall.product.vo.Catalog3List;
 import com.atguigu.gulimall.product.vo.Catelog2Vo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -93,8 +94,10 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     /**
      * 查询1级分类
      */
+    @Cacheable(value = {"category"}, key = "#root.method.name")
     @Override
     public List<CategoryEntity> getLeve1Categorys() {
+        System.out.println("getLeve1Categorys");
         QueryWrapper<CategoryEntity> queryWrapper = new QueryWrapper();
         queryWrapper.eq("parent_cid", 0);
         List<CategoryEntity> categoryEntities = baseMapper.selectList(queryWrapper);
