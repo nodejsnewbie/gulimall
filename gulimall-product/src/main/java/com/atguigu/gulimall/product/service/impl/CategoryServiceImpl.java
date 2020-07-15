@@ -98,7 +98,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
      * 查询1级分类
      * Cacheable 加入缓存
      */
-    @Cacheable(value = {"category"}, key = "#root.methodName")
+    @Cacheable(value = {"category"}, key = "#root.methodName", sync = true)
     @Override
     public List<CategoryEntity> getLeve1Categorys() {
         System.out.println("getLeve1Categorys");
@@ -108,7 +108,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         return categoryEntities;
     }
 
-    @Cacheable(value = {"category"}, key = "#root.methodName")
+    @Cacheable(value = {"category"}, key = "#root.methodName", sync = true)
     @Override
     public Map<String, List<Catelog2Vo>> getCatelogJson() {
 
