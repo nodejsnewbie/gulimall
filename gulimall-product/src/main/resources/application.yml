@@ -25,10 +25,9 @@ spring:
   cache:
     type: redis
     redis:
-      time-to-live: 30000
+      time-to-live: 120000
       cache-null-values: true
       use-key-prefix: true
-      key-prefix: CHCHE_
 
 mybatis-plus:
   mapper-locations: classpath:/mapper/**/*.xml
