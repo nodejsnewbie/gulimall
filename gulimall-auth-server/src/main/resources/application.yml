@@ -9,6 +9,9 @@ spring:
 
   thymeleaf:
     cache: false
+  redis:
+    host: 59.110.44.147
+    port: 6379
 
 server:
   port: 20000
