@@ -18,12 +18,13 @@ public class ItemController {
 
     /**
      * 根据skuId取得商品的详情信息
+     *
      * @param skuId
      * @return
      */
     @GetMapping("/{skuId}.html")
-    public String skuItem(@PathVariable("skuId") Long skuId, Model model){
-        SkuItemVo vo=skuInfoService.item(skuId);
+    public String skuItem(@PathVariable("skuId") Long skuId, Model model) {
+        SkuItemVo vo = skuInfoService.item(skuId);
         model.addAttribute("item", vo);
         return "item";
     }
