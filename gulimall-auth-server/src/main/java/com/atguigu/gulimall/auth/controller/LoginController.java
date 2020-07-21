@@ -1,8 +1,10 @@
 package com.atguigu.gulimall.auth.controller;
 
+import com.alibaba.fastjson.TypeReference;
 import com.atguigu.common.constant.AuthServerConstant;
 import com.atguigu.common.exception.BizCodeEnume;
 import com.atguigu.common.utils.R;
+import com.atguigu.gulimall.auth.feign.MemberFeignService;
 import com.atguigu.gulimall.auth.feign.ThirdParFeignService;
 import com.atguigu.gulimall.auth.vo.UserRegistVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +34,9 @@ public class LoginController {
 
     @Autowired
     StringRedisTemplate stringRedisTemplate;
+
+    @Autowired
+    MemberFeignService memberFeignService;
 
     @ResponseBody
     @GetMapping("sms/sendCode")
@@ -72,9 +77,11 @@ public class LoginController {
             Map<String, String> errors = result.getFieldErrors().stream().collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage));
             redirectAttributes.addFlashAttribute("errors", errors);
             //校验出错，到注册页面
+            for (Map.Entry<String, String> entry : errors.entrySet()) {
+                System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue());
+            }
             return "redirect:http://auth.gulimall.com/reg.html";
         }
-
         //校验验证码
         String webCode = userRegistVo.getCode();
         String webPhone = userRegistVo.getPhone();
@@ -94,6 +101,19 @@ public class LoginController {
                 //1.删除redis里面的验证码
                 stringRedisTemplate.delete(key);
                 //2.调用远程服务进行注册
+                R r = memberFeignService.regist(userRegistVo);
+                if (r.getCode() == 0) {
+                    //成功
+                    return "redirect:http://auth.gulimall.com/login.html";
+                } else {
+                    //失败
+                    Map<String, String> errors = new HashMap<>();
+                    errors.put("msg", r.getData(new TypeReference<String>() {
+                    }));
+                    redirectAttributes.addFlashAttribute("errors", errors);
+                    //校验出错，到注册页面
+                    return "redirect:http://auth.gulimall.com/reg.html";
+                }
             } else {
                 Map<String, String> errors = new HashMap<>();
                 errors.put("code", "验证码错误");
@@ -102,10 +122,6 @@ public class LoginController {
                 return "redirect:http://auth.gulimall.com/reg.html";
             }
         }
-
-        //调用远程服务进行注册
-
-        return "redirect:/login.html";
     }
 
 }
