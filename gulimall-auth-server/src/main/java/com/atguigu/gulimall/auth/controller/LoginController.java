@@ -4,15 +4,25 @@ import com.atguigu.common.constant.AuthServerConstant;
 import com.atguigu.common.exception.BizCodeEnume;
 import com.atguigu.common.utils.R;
 import com.atguigu.gulimall.auth.feign.ThirdParFeignService;
+import com.atguigu.gulimall.auth.vo.UserRegistVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.validation.Valid;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Controller
 public class LoginController {
@@ -53,6 +63,49 @@ public class LoginController {
         //调动第三方微服务发送验证码
         thirdParFeignService.sendCode(phone, code);
         return R.ok();
+    }
+
+
+    @PostMapping("/regist")
+    public String regist(@Valid UserRegistVo userRegistVo, BindingResult result, RedirectAttributes redirectAttributes) {
+        if (result.hasErrors()) {
+            Map<String, String> errors = result.getFieldErrors().stream().collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage));
+            redirectAttributes.addFlashAttribute("errors", errors);
+            //校验出错，到注册页面
+            return "redirect:http://auth.gulimall.com/reg.html";
+        }
+
+        //校验验证码
+        String webCode = userRegistVo.getCode();
+        String webPhone = userRegistVo.getPhone();
+
+        String key = AuthServerConstant.SMS_CODE_CACHE_PREFIX + webPhone;
+        String redisOldCode = stringRedisTemplate.opsForValue().get(key);
+        if (StringUtils.isEmpty(redisOldCode)) {
+            Map<String, String> errors = new HashMap<>();
+            errors.put("code", "验证码错误");
+            redirectAttributes.addFlashAttribute("errors", errors);
+            //校验出错，到注册页面
+            return "redirect:http://auth.gulimall.com/reg.html";
+        } else {
+            String redisCode = redisOldCode.split("_")[0];
+            //验证码校验通过
+            if (webCode.equals(redisCode)) {
+                //1.删除redis里面的验证码
+                stringRedisTemplate.delete(key);
+                //2.调用远程服务进行注册
+            } else {
+                Map<String, String> errors = new HashMap<>();
+                errors.put("code", "验证码错误");
+                redirectAttributes.addFlashAttribute("errors", errors);
+                //校验出错，到注册页面
+                return "redirect:http://auth.gulimall.com/reg.html";
+            }
+        }
+
+        //调用远程服务进行注册
+
+        return "redirect:/login.html";
     }
 
 }
