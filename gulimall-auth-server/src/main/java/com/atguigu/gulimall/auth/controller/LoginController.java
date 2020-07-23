@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
@@ -72,7 +73,7 @@ public class LoginController {
     }
 
     @PostMapping("/login")
-    public String login(@Valid UserLoginVo userLoginVo, BindingResult result, RedirectAttributes redirectAttributes) {
+    public String login(@Valid UserLoginVo userLoginVo, BindingResult result, RedirectAttributes redirectAttributes , HttpSession httpSession) {
         if (result.hasErrors()) {
             Map<String, String> errors = result.getFieldErrors().stream().collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage));
             redirectAttributes.addFlashAttribute("errors", errors);
@@ -86,6 +87,7 @@ public class LoginController {
         R r = memberFeignService.login(userLoginVo);
         if (r.getCode() == 0) {
             //成功
+            httpSession.setAttribute("loginUser","张三");
             return "redirect:http://gulimall.com";
         } else {
             //失败
