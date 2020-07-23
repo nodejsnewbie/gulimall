@@ -60,7 +60,7 @@ class GulimallThirdPartyApplicationTests {
     public void test() {
         String url = "https://xxx";
         HashMap<String, Object> data = new HashMap<>();
-        data.put("phone", "15188355273");
+        data.put("phone", "xxxx");
         data.put("validate_code", "1234");
         String result = doPost(url, data);
         System.out.println(result);
