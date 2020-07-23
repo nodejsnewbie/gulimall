@@ -58,7 +58,7 @@ class GulimallThirdPartyApplicationTests {
 
     @Test
     public void test() {
-        String url = "https://sasapi.laipaifafu.com/test_assets/index.php/api/Index/loginByPhone";
+        String url = "https://xxx";
         HashMap<String, Object> data = new HashMap<>();
         data.put("phone", "15188355273");
         data.put("validate_code", "1234");
