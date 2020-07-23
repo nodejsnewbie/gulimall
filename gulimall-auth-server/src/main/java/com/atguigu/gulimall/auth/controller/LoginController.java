@@ -6,6 +6,7 @@ import com.atguigu.common.exception.BizCodeEnume;
 import com.atguigu.common.utils.R;
 import com.atguigu.gulimall.auth.feign.MemberFeignService;
 import com.atguigu.gulimall.auth.feign.ThirdParFeignService;
+import com.atguigu.gulimall.auth.vo.UserLoginVo;
 import com.atguigu.gulimall.auth.vo.UserRegistVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -70,6 +71,33 @@ public class LoginController {
         return R.ok();
     }
 
+    @PostMapping("/login")
+    public String login(@Valid UserLoginVo userLoginVo, BindingResult result, RedirectAttributes redirectAttributes) {
+        if (result.hasErrors()) {
+            Map<String, String> errors = result.getFieldErrors().stream().collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage));
+            redirectAttributes.addFlashAttribute("errors", errors);
+            //校验出错，到登录页面
+            for (Map.Entry<String, String> entry : errors.entrySet()) {
+                System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue());
+            }
+            return "redirect:http://auth.gulimall.com/login.html";
+        }
+
+        R r = memberFeignService.login(userLoginVo);
+        if (r.getCode() == 0) {
+            //成功
+            return "redirect:http://gulimall.com";
+        } else {
+            //失败
+            Map<String, String> errors = new HashMap<>();
+            errors.put("msg", r.getData("msg", new TypeReference<String>() {
+            }));
+            redirectAttributes.addFlashAttribute("errors", errors);
+            //校验出错，到注册页面
+            return "redirect:http://auth.gulimall.com/login.html";
+        }
+    }
+
 
     @PostMapping("/regist")
     public String regist(@Valid UserRegistVo userRegistVo, BindingResult result, RedirectAttributes redirectAttributes) {
@@ -108,7 +136,7 @@ public class LoginController {
                 } else {
                     //失败
                     Map<String, String> errors = new HashMap<>();
-                    errors.put("msg", r.getData(new TypeReference<String>() {
+                    errors.put("msg", r.getData("msg", new TypeReference<String>() {
                     }));
                     redirectAttributes.addFlashAttribute("errors", errors);
                     //校验出错，到注册页面
