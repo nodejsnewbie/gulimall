@@ -66,6 +66,11 @@
             <artifactId>jedis</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.session</groupId>
+            <artifactId>spring-session-data-redis</artifactId>
+        </dependency>
+
         <!-- 分布式锁 -->
         <dependency>
             <groupId>org.redisson</groupId>
