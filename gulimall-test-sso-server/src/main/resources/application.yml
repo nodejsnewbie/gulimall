@@ -1,0 +1,9 @@
+server:
+  port: 8080
+
+spring:
+  thymeleaf:
+    cache: false
+  redis:
+    host: 59.110.44.147
+    port: 6379
