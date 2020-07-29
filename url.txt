@@ -32,3 +32,7 @@ http://localhost:88/api/ware/purchase/received
 http://localhost:10000
 
 http://localhost:88/api/search/haha
+
+http://localhost:88/api/product/brand/list
+http://localhost:88/api/cart/test/one
+http://localhost:40000/cart/test/one
