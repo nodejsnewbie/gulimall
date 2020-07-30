@@ -74,6 +74,7 @@ public class LoginController {
 
     @PostMapping("/login")
     public String login(@Valid UserLoginVo userLoginVo, BindingResult result, RedirectAttributes redirectAttributes , HttpSession httpSession) {
+        System.out.println("login");
         if (result.hasErrors()) {
             Map<String, String> errors = result.getFieldErrors().stream().collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage));
             redirectAttributes.addFlashAttribute("errors", errors);
@@ -87,7 +88,8 @@ public class LoginController {
         R r = memberFeignService.login(userLoginVo);
         if (r.getCode() == 0) {
             //成功
-            httpSession.setAttribute("loginUser","张三");
+            httpSession.setAttribute(AuthServerConstant.LOGIN_USER,"张三");
+            System.out.println("设置httpSession");
             return "redirect:http://gulimall.com";
         } else {
             //失败
