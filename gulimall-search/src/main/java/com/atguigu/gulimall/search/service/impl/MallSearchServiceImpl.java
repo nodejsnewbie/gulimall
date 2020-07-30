@@ -145,7 +145,7 @@ public class MallSearchServiceImpl implements MallSearchService {
         result.setBrands(brandVos);
 
         //4.当前所有商品所涉及到的所有分类信息
-        ParsedLongTerms catelog_agg = response.getAggregations().get("catelog_agg");
+        ParsedStringTerms catelog_agg = response.getAggregations().get("catelog_agg");
         List<CatelogVo> catelogVos = catelog_agg.getBuckets().stream().map(item -> {
             CatelogVo catelogVo = new CatelogVo();
             //获取分类ID
