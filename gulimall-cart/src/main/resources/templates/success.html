@@ -74,10 +74,10 @@
                             </div>
                             <div class="p-info">
                                 <div class="p-name">
-                                    <a href="'http://item.gmall.com/'+${skuInfo?.id}+'.html'"
-                                       text="${skuInfo?.skuName}">TCL 55A950C 55英寸32核人工智能 HDR曲面超薄4K电视金属机身（枪色）</a>
+                                    <a href="'http://item.gmall.com/'+${item.skuId} +'.html'"
+                                       th:text="${item.title}">TCL 55A950C 55英寸32核人工智能 HDR曲面超薄4K电视金属机身（枪色）</a>
                                 </div>
-                                <div class="p-extra"><span class="txt" text="'数量：'+${skuNum}">  数量：1</span></div>
+                                <div class="p-extra"><span class="txt" th:text="'数量：'+${item.count}">  数量：1</span></div>
                             </div>
                             <div class="clr"></div>
                         </div>

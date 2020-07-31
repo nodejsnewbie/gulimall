@@ -1,12 +1,20 @@
 package com.atguigu.gulimall.cart.controller;
 
 import com.atguigu.gulimall.cart.interceptor.CartInterceptor;
+import com.atguigu.gulimall.cart.service.CartService;
+import com.atguigu.gulimall.cart.vo.CartItem;
 import com.atguigu.gulimall.cart.vo.UserInfoTo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class CartController {
+
+    @Autowired
+    CartService cartService;
 
     /**
      * 去购物车页面的请求
@@ -31,7 +39,11 @@ public class CartController {
      * 添加商品到购物车
      */
     @GetMapping("/addToCart")
-    public String addToCart() {
+    public String addToCart(@RequestParam("skuId") Long skuId,
+                            @RequestParam("num") Integer num,
+                            Model model) {
+        CartItem cartItem = cartService.addToCart(skuId, num);
+        model.addAttribute("item", cartItem);
         return "success";
     }
 

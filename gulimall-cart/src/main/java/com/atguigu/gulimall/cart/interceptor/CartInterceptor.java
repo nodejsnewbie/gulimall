@@ -32,13 +32,9 @@ public class CartInterceptor implements HandlerInterceptor {
      */
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        System.out.println("preHandle");
         UserInfoTo userInfoTo = new UserInfoTo();
         HttpSession httpSession = request.getSession();
         String UserName = (String) httpSession.getAttribute(AuthServerConstant.LOGIN_USER);
-
-        System.out.println("preHandle--HttpSession-->" + UserName);
-
         if (!StringUtils.isEmpty(UserName)) {
             userInfoTo.setUserId(2L);
         }
@@ -50,7 +46,6 @@ public class CartInterceptor implements HandlerInterceptor {
                     String key = cookie.getValue();
                     userInfoTo.setUserKey(key);
                     userInfoTo.setTempUser(true);
-                    System.out.println("preHandle--cookies-->" + key);
                 }
             }
         }
@@ -67,7 +62,6 @@ public class CartInterceptor implements HandlerInterceptor {
 
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
-        System.out.println("postHandle");
         UserInfoTo userInfoTo = threadLocal.get();
         boolean tempUser = userInfoTo.isTempUser();
         //如果没有临时用户，保存临时用户
