@@ -16,7 +16,8 @@
                 <li class="glyphicon glyphicon-home"><a href="shouye.html" class="aa">首页</a></li>
                 <li class="glyphicon glyphicon-map-marker"><a href="/static/item/javascript:;">北京</a>
                     <ol id="beijing">
-                        <li style="background: red;"><a href="/static/item/javascript:;" style="color: white;">北京</a></li>
+                        <li style="background: red;"><a href="/static/item/javascript:;" style="color: white;">北京</a>
+                        </li>
                         <li><a href="/static/item/javascript:;">上海</a></li>
                         <li><a href="/static/item/javascript:;">天津</a></li>
                         <li><a href="/static/item/javascript:;">重庆</a></li>
@@ -78,7 +79,8 @@
             </div>
             <div class="nav_down">
                 <ul class="nav_down_ul">
-                    <li class="nav_down_ul_1" style="width: 24%;float: left;"><a href="/static/item/javascript:;">全部商品分类</a>
+                    <li class="nav_down_ul_1" style="width: 24%;float: left;"><a
+                            href="/static/item/javascript:;">全部商品分类</a>
 
                     </li>
 
@@ -103,34 +105,17 @@
 
                 <div class="imgbox">
                     <div class="probox">
-                        <img class="img1" alt="" th:src="/static/item/${skuInfo?.skuDefaultImg}"
+                        <img class="img1" alt="" th:src="${item.info.skuDefaultImg}"
                              src="/static/item/img/59ded626N7c4cb0a3.jpg">
                         <div class="hoverbox"></div>
                     </div>
                     <div class="showbox">
-                        <img class="img1" alt="" th:src="/static/item/${skuInfo?.skuDefaultImg}"
+                        <img class="img1" alt="" th:src="${item.info.skuDefaultImg}"
                              src="/static/item/img/59ded626N7c4cb0a3.jpg">
                     </div>
                 </div>
 
                 <div class="box-lh">
-
-                    <div class="box-lh-one">
-                        <ul>
-                            <li th:each="skuImage:${skuInfo?.skuImageList}">
-                                <img th:src="/static/item${skuImage.imgUrl}"/>
-                                <!--								<li><img src="/static/item/img/59ded62eN64a9784c.jpg" /></li>
-                                                                <li><img src="/static/item/img/59ded626Ne3c69b70.jpg" /></li>
-                                                                <li><img src="/static/item/img/59ded626N7c4cb0a3.jpg" /></li>
-                                                                <li><img src="/static/item/img/59ded626Ne3c69b70.jpg" /></li>
-                                                                <li><img src="/static/item/img/59ded62dN7e28abc5 (1).jpg" /></li>
-                                                                <li><img src="/static/item/img/59ded62cN6e9ac17c.jpg" /></li>
-                                                                <li><img src="/static/item/img/59ded620Nfc0ab489.jpg" /></li>
-                                                                <li><img src="/static/item/img/59ded60eN3110f3a8.jpg" /></li>
-                                                                <li><img src="/static/item/img/59ded62dNfed003a8.jpg" /></li>-->
-                            </li>
-                        </ul>
-                    </div>
                     <div id="left">
                         <
                     </div>
@@ -153,8 +138,8 @@
 
             </div>
             <div class="box-two">
-                <div class="box-name" th:text="${skuInfo?.skuName}">
-                    华为 HUAWEI Mate 10 6GB+128GB 亮黑色 移动联通电信4G手机 双卡双待
+                <div class="box-name" th:text="${item.info.skuTitle}">
+                    华为 HUAWEI Mate 10 6GB+128GB 亮黑色 移动联通电信4G手机 双卡双待！！！！！！！！！
                 </div>
 
                 <div class="box-yuyue">
@@ -177,7 +162,7 @@
                         <li>惊喜价</li>
                         <li>
                             <span>￥</span>
-                            <span th:text="${skuInfo?.price}">4499.00</span>
+                            <span th:text="${#numbers.formatDecimal(item.info.price,3,2)}">4499.00</span>
                         </li>
                         <li>
 
@@ -203,7 +188,7 @@
 
                         </li>
                         <li>
-                            <span>无货</span>， 此商品暂时售完
+                            <span th:text="${item.hasStock?'有货':'无货'}">无货</span>， 此商品暂时售完
                         </li>
 
                     </ul>
@@ -215,57 +200,34 @@
                             <div class="box-stock-one">
                             </div>
 
-
                         </li>
-                        <li th:text="${skuInfo?.weight}+' kg'">
+                        <li th:text="${item.info.price}+' kg'">
                             10 kg
                         </li>
 
                     </ul>
                 </div>
 
-                <div class="box-attr-3">
-                    <br/>
-                    <div class="box-attr-2 clear" th:each="spuSaleAttr:${spuSaleAttrListCheckBySku}">
-                        <dl>
-                            <dt th:text="${spuSaleAttr.saleAttrName}">选择颜色</dt>
-                            <dd th:class="redborder" th:each="saleAttrValue:${spuSaleAttr.spuSaleAttrValueList}">
-                                <div th:value="${saleAttrValue.id}" th:text="${saleAttrValue.saleAttrValueName}">
-                                    摩卡金
-                                </div>
-                            </dd>
-                        </dl>
-                    </div>
-                    <!--							<div class="box-attr-2 clear">
-                                                    <dl>
-                                                        <dt>选择版本</dt>
-                                                        <dd>
-                                                            <a href="#">标准版</a>
-                                                        </dd>
-                                                        <dd>
-                                                            <a href="#">套装版</a>
-                                                        </dd>
-                                                    </dl>
-                                                </div>
-                                                <div class="box-attr-2 clear">
-                                                    <dl>
-                                                        <dt>选择内存</dt>
-                                                        <dd>
-                                                            <a href="#">64GB</a>
-                                                        </dd>
-                                                        <dd>
-                                                            <a href="#">128GB</a>
-                                                        </dd>
-                                                    </dl>
-                                                </div>-->
-                    <br/>
-                </div>
+                <!--                <div class="box-attr-3">-->
+                <!--                    <br/>-->
+                <!--                    <div class="box-attr-2 clear" th:each="spuSaleAttr:${spuSaleAttrListCheckBySku}">-->
+                <!--                        <dl>-->
+                <!--                            <dt th:text="${spuSaleAttr.saleAttrName}">选择颜色</dt>-->
+                <!--                            <dd th:class="redborder" th:each="saleAttrValue:${spuSaleAttr.spuSaleAttrValueList}">-->
+                <!--                                <div th:value="${saleAttrValue.id}" th:text="${saleAttrValue.saleAttrValueName}">-->
+                <!--                                    摩卡金-->
+                <!--                                </div>-->
+                <!--                            </dd>-->
+                <!--                        </dl>-->
+                <!--                    </div>-->
+                <!--                    <br/>-->
+                <!--                </div>-->
 
                 <div class="box-btns clear">
                     <div class="box-btns-one">
                         <form id="itemForm" action="http://cart.gulimall.com:8087/addToCart" method="post">
                             <input type="text" name="num" id="" value="1"/>
-                            <input type="hidden" name="skuId" th:value="${skuInfo?.id}"/>
+                            <input type="hidden" name="skuId" th:value="${item.info.skuId}"/>
 
                             <div class="box-btns-one1">
 
@@ -283,14 +245,16 @@
                             </div>
                         </form>
                     </div>
-                    <div id="cartBtn" style="cursor:pointer;" canClick="1" onclick="addToCart(this)"
-                         class="box-btns-two">
+<!--                    <div id="cartBtn" style="cursor:pointer;" canClick="1" onclick="addToCart(this)"-->
+<!--                         class="box-btns-two">-->
+<!--                        -->
+<!--                    </div>-->
 
-                        放入购物车
+                    <a href="http://cart.gulimall.com/addToCart">
+                        加入购物车
+                    </a>
 
-                    </div>
                 </div>
-
 
             </div>
 
@@ -1017,7 +981,7 @@
 </div>
 
 
-<input id="skuId" type="text" th:value=" ${skuInfo?.id}"/>
+<input id="skuId" type="text" th:value=" ${item.info.skuId}"/>
 
 <div class="Fixedbian">
     <ul>

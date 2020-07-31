@@ -27,4 +27,12 @@ public class CartController {
         return "cartList";
     }
 
+    /**
+     * 添加商品到购物车
+     */
+    @GetMapping("/addToCart")
+    public String addToCart() {
+        return "success";
+    }
+
 }
