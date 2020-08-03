@@ -60,11 +60,20 @@ public class CartController {
     }
 
     /**
-     * 添加商品到购物车
+     * 修改选中和未选中
      */
     @GetMapping("/checkItem")
     public String checkItem(@RequestParam("skuId") Long skuId, @RequestParam("check") Integer check) {
         cartService.checkItem(skuId, check);
+        return "redirect:http://cart.gulimall.com/cart.html";
+    }
+
+    /**
+     * 增减商品
+     */
+    @GetMapping("/countItem")
+    public String countItem(@RequestParam("skuId") Long skuId, @RequestParam("num") Integer num) {
+        cartService.changeItemCount(skuId, num);
         return "redirect:http://cart.gulimall.com/cart.html";
     }
 

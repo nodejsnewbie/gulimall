@@ -93,9 +93,10 @@
                             </li>
                             <li>
                                 <dt><img th:src="${item.image}" alt=""></dt>
-                                <dd>
+                                <dd style="width: 300px">
                                     <p>
                                         <span th:text="${item.title}">TCL 55A950C 55英寸32核</span>
+                                        <br/>
                                         <span th:each="attr:${item.skuAttr}" th:text="${attr}">尺码: 55时 超薄曲面 人工智能</span>
                                     </p>
                                 </dd>
@@ -105,10 +106,10 @@
 
                             </li>
                             <li>
-                                <p>
-                                    <span>-</span>
-                                    <span th:text="${item.count}">5</span>
-                                    <span>+</span>
+                                <p style="width: 70px" th:attr="skuId=${item.skuId}">
+                                    <span class="countOpsBtn">-</span>
+                                    <span class="countOpsNum" th:text="${item.count}">5</span>
+                                    <span class="countOpsBtn">+</span>
                                 </p>
 
                             </li>
@@ -767,6 +768,12 @@
         var skuId = $(this).attr("skuId");
         var check = $(this).prop("checked");
         location.href = "http://cart.gulimall.com/checkItem?skuId=" + skuId + "&check=" + (check ? 1 : 0);
+    })
+
+    $(".countOpsBtn").click(function () {
+        var skuId = $(this).parent().attr("skuId");
+        var num = $(this).parent().find(".countOpsNum").text();
+        location.href = "http://cart.gulimall.com/countItem?skuId=" + skuId + "&num=" + num;
     })
 
 </script>
