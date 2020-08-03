@@ -177,5 +177,10 @@ public class CartServiceImpl implements CartService {
         cartOps.put(skuId.toString(), s);
     }
 
+    @Override
+    public void deleteItem(Long skuId) {
+        BoundHashOperations<String, Object, Object> cartOps = getCartOps();
+        cartOps.delete(skuId.toString());
+    }
 
 }
