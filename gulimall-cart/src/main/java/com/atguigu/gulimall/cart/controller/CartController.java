@@ -10,6 +10,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.concurrent.ExecutionException;
+
 @Controller
 public class CartController {
 
@@ -41,7 +43,7 @@ public class CartController {
     @GetMapping("/addToCart")
     public String addToCart(@RequestParam("skuId") Long skuId,
                             @RequestParam("num") Integer num,
-                            Model model) {
+                            Model model) throws ExecutionException, InterruptedException {
         CartItem cartItem = cartService.addToCart(skuId, num);
         model.addAttribute("item", cartItem);
         return "success";

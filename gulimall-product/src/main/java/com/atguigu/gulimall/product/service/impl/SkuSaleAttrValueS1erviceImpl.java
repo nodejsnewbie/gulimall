@@ -17,7 +17,7 @@ import com.atguigu.common.utils.PageUtils;
 import com.atguigu.common.utils.Query;
 
 @Service("skuSaleAttrValueService")
-public class SkuSaleAttrValueServiceImpl extends ServiceImpl<SkuSaleAttrValueDao, SkuSaleAttrValueEntity> implements SkuSaleAttrValueService {
+public class SkuSaleAttrValueS1erviceImpl extends ServiceImpl<SkuSaleAttrValueDao, SkuSaleAttrValueEntity> implements SkuSaleAttrValueService {
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -32,6 +32,12 @@ public class SkuSaleAttrValueServiceImpl extends ServiceImpl<SkuSaleAttrValueDao
     @Override
     public List<SkuItemSaleAttrVo> getSaleAttrsBySpuId(Long spuId) {
         return this.baseMapper.getSaleAttrsBySpuId(spuId);
+    }
+
+    @Override
+    public List<String> getSkuSaleAttrValuesAsStringList(Long skuId) {
+        SkuSaleAttrValueDao dao = this.baseMapper;
+        return dao.getSkuSaleAttrValuesAsStringList(skuId);
     }
 
 }
