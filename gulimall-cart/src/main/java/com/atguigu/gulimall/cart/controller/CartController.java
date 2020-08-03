@@ -59,4 +59,13 @@ public class CartController {
         return "success";
     }
 
+    /**
+     * 添加商品到购物车
+     */
+    @GetMapping("/checkItem")
+    public String checkItem(@RequestParam("skuId") Long skuId, @RequestParam("check") Integer check) {
+        cartService.checkItem(skuId, check);
+        return "redirect:http://cart.gulimall.com/cart.html";
+    }
+
 }
