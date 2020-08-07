@@ -17,6 +17,13 @@ spring:
     host: 59.110.44.147
     port: 5672
     virtual-host: /
+    publisher-confirm-type: correlated #开启发送端回调
+    publisher-returns: true  #开启发送端消息到队列错误时候回调
+    template: #开启发送端消息到队列错误时候回调
+      mandatory: true #开启发送端消息到队列错误时候回调
+    listener: #手动ack消息
+      simple:
+        acknowledge-mode: manual
 
 mybatis-plus:
   mapper-locations: classpath:/mapper/**/*.xml
