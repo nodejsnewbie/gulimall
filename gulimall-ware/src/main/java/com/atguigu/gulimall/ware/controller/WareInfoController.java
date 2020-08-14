@@ -1,5 +1,6 @@
 package com.atguigu.gulimall.ware.controller;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -28,6 +29,12 @@ import com.atguigu.common.utils.R;
 public class WareInfoController {
     @Autowired
     private WareInfoService wareInfoService;
+
+    @RequestMapping("/fare")
+    public R getFare(@RequestParam("addrId") Long addrId) {
+        BigDecimal bigDecimal = wareInfoService.getFare(addrId);
+        return R.ok().setData(bigDecimal);
+    }
 
     /**
      * 列表
