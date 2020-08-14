@@ -1,11 +1,15 @@
 package com.atguigu.gulimall.order.service.impl;
 
+import com.alibaba.fastjson.TypeReference;
+import com.atguigu.common.utils.R;
 import com.atguigu.gulimall.order.feign.CartFeignService;
 import com.atguigu.gulimall.order.feign.MemberFeignService;
+import com.atguigu.gulimall.order.feign.WmsFeignService;
 import com.atguigu.gulimall.order.interceptor.LoginUserInterceptor;
 import com.atguigu.gulimall.order.vo.MemberAddressVo;
 import com.atguigu.gulimall.order.vo.OrderConfirmVo;
 import com.atguigu.gulimall.order.vo.OrderItemVo;
+import com.atguigu.gulimall.order.vo.SkuStockVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,6 +19,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -41,6 +46,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
     CartFeignService cartFeignService;
 
     @Autowired
+    WmsFeignService wmsFeignService;
+
+    @Autowired
     ThreadPoolExecutor executor;
 
     @Override
@@ -57,7 +65,6 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
     public OrderConfirmVo confirmOrder() throws ExecutionException, InterruptedException {
         OrderConfirmVo orderConfirmVo = new OrderConfirmVo();
         String userName = LoginUserInterceptor.loginUser.get();
-        log.info("username--->" + userName);
         Long userId = null;
         //模拟查出用户ID
         if (!StringUtils.isEmpty(userName)) {
@@ -75,7 +82,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
                 //把之前请求的数据放入到新的线程中
                 RequestContextHolder.setRequestAttributes(requestAttributes);
                 List<MemberAddressVo> address = memberFeignService.getAddress(finalUserId);
-                orderConfirmVo.setAddressVos(address);
+                orderConfirmVo.setAddress(address);
             }
         }, executor);
 
@@ -88,6 +95,20 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
                 List<OrderItemVo> userCartItems = cartFeignService.getCurrentUserCartItems();
                 orderConfirmVo.setItems(userCartItems);
             }
+            //3.远程查询库存服务
+        }, executor).thenRunAsync(new Runnable() {
+            @Override
+            public void run() {
+                List<OrderItemVo> items = orderConfirmVo.getItems();
+                List<Long> ids = items.stream().map(item -> item.getSkuId()).collect(Collectors.toList());
+                R r = wmsFeignService.getSkuHasStock(ids);
+                List<SkuStockVo> stockVoList = r.getData(new TypeReference<List<SkuStockVo>>() {
+                });
+                if (stockVoList != null) {
+                    Map<Long, Boolean> map = stockVoList.stream().collect(Collectors.toMap(SkuStockVo::getSkuId, SkuStockVo::getHasStock));
+                    orderConfirmVo.setStocks(map);
+                }
+            }
         }, executor);
 
 
@@ -96,9 +117,6 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         orderConfirmVo.setIntegration(integer);
 
         CompletableFuture.allOf(getAddressFuture, cartFuture).get();
-
-        log.info("orderConfirmVo--->" + orderConfirmVo);
-
         return orderConfirmVo;
     }
 

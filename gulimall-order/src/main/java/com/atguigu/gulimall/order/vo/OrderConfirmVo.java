@@ -1,12 +1,12 @@
 package com.atguigu.gulimall.order.vo;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 订单确认页用的数据
@@ -17,7 +17,7 @@ public class OrderConfirmVo {
     //收货地址 ums_member_receive_address表
     @Getter
     @Setter
-    List<MemberAddressVo> addressVos;
+    List<MemberAddressVo> address;
 
     //所有选中的购物项
     @Getter
@@ -28,6 +28,10 @@ public class OrderConfirmVo {
     @Getter
     @Setter
     private Integer integration;
+
+    @Getter
+    @Setter
+    Map<Long, Boolean> stocks;
 
     //防重令牌
     @Getter
@@ -52,5 +56,15 @@ public class OrderConfirmVo {
 //    BigDecimal payPrice;
     public BigDecimal getPayPrice() {
         return getTotal();
+    }
+
+    public Integer getCount() {
+        Integer i = 0;
+        if (items != null) {
+            for (OrderItemVo item : items) {
+                i += item.getCount();
+            }
+        }
+        return i;
     }
 }

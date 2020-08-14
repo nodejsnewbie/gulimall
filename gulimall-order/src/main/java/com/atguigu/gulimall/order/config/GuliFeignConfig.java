@@ -21,10 +21,12 @@ public class GuliFeignConfig {
             @Override
             public void apply(RequestTemplate requestTemplate) {
                 ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-                HttpServletRequest request = attributes.getRequest();
-                if (request != null) {
-                    String cookie = request.getHeader("Cookie");
-                    requestTemplate.header("Cookie", cookie);
+                if (attributes != null) {
+                    HttpServletRequest request = attributes.getRequest();
+                    if (request != null) {
+                        String cookie = request.getHeader("Cookie");
+                        requestTemplate.header("Cookie", cookie);
+                    }
                 }
             }
         };

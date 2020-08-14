@@ -20,6 +20,7 @@ public class OrderWebController {
     @GetMapping("/toTrade")
     public String toTrade(Model model) throws ExecutionException, InterruptedException {
         OrderConfirmVo confirmVo = orderService.confirmOrder();
+        System.out.println("confirmVo-->" + confirmVo);
         model.addAttribute("orderConfirmData", confirmVo);
         //展示订单确认页面的数据
         return "confirm";
