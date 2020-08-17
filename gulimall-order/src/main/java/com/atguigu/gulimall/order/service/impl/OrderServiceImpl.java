@@ -2,6 +2,7 @@ package com.atguigu.gulimall.order.service.impl;
 
 import com.alibaba.fastjson.TypeReference;
 import com.atguigu.common.utils.R;
+import com.atguigu.gulimall.order.constant.OrderConstant;
 import com.atguigu.gulimall.order.feign.CartFeignService;
 import com.atguigu.gulimall.order.feign.MemberFeignService;
 import com.atguigu.gulimall.order.feign.WmsFeignService;
@@ -12,13 +13,16 @@ import com.atguigu.gulimall.order.vo.OrderItemVo;
 import com.atguigu.gulimall.order.vo.SkuStockVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -47,6 +51,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
     @Autowired
     WmsFeignService wmsFeignService;
+
+    @Autowired
+    StringRedisTemplate redisTemplate;
 
     @Autowired
     ThreadPoolExecutor executor;
@@ -111,10 +118,16 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
             }
         }, executor);
 
-
         //3.查询用户积分
         Integer integer = 0;
         orderConfirmVo.setIntegration(integer);
+        //生成防重令牌
+        String token = UUID.randomUUID().toString().replace("-", "");
+        //发给页面
+        orderConfirmVo.setOrderToken(token);
+        //存入redis
+        String key = OrderConstant.USER_ORDER_TOKEN_PREFIX + finalUserId;
+        redisTemplate.opsForValue().set(key, token, 30, TimeUnit.MINUTES);
 
         CompletableFuture.allOf(getAddressFuture, cartFuture).get();
         return orderConfirmVo;
