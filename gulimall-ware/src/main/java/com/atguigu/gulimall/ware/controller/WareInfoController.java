@@ -25,6 +25,9 @@ public class WareInfoController {
     @Autowired
     private WareInfoService wareInfoService;
 
+    /**
+     * 计算运费
+     */
     @RequestMapping("/fare")
     public R getFare(@RequestParam("addrId") Long addrId) {
         FareVo bigDecimal = wareInfoService.getFare(addrId);
