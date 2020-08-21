@@ -18,6 +18,7 @@ import com.atguigu.gulimall.order.vo.*;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.weaver.ast.Or;
+import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -40,6 +41,7 @@ import com.atguigu.common.utils.Query;
 import com.atguigu.gulimall.order.dao.OrderDao;
 import com.atguigu.gulimall.order.entity.OrderEntity;
 import com.atguigu.gulimall.order.service.OrderService;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestAttributes;
@@ -196,11 +198,15 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
                     return itemVo;
                 }).collect(Collectors.toList());
                 lockVo.setLocks(locks);
+                // todo 远程锁定库存
                 R r = wmsFeignService.orderLockStock(lockVo);
                 if (r.getCode() == 0) {
                     //锁定成功
                     responseVo.setCode(0);
                     responseVo.setOrder(order.getOrder());
+
+                    //todo 远程扣减积分出现异常
+
                     return responseVo;
                 } else {
                     //锁定失败
@@ -354,5 +360,35 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         itemEntity.setRealAmount(subtract);
         return itemEntity;
     }
+
+    /**
+     * a事务
+     */
+    @Transactional
+    public void a() {
+        //再同一个service里面调用方法，b,c设置的事务传播会失效，需要用代理对象调用
+        //如果b,c方法再另外的service，则没有这个问题
+        OrderServiceImpl orderService = (OrderServiceImpl) AopContext.currentProxy();
+        orderService.b(); //a事务
+        orderService.c(); //新事务
+        //有异常a b 会回滚,c不会
+    }
+
+    /**
+     * b事务
+     */
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void b() {
+
+    }
+
+    /**
+     * c事务
+     */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void c() {
+
+    }
+
 
 }
