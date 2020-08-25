@@ -16,6 +16,7 @@ import com.atguigu.gulimall.order.service.OrderItemService;
 import com.atguigu.gulimall.order.to.OrderCreateTo;
 import com.atguigu.gulimall.order.vo.*;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
+import io.seata.spring.annotation.GlobalTransactional;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.weaver.ast.Or;
 import org.springframework.aop.framework.AopContext;
@@ -150,7 +151,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         return orderConfirmVo;
     }
 
-    @Transactional
+    @GlobalTransactional
     @Override
     public SubmitOrderResponseVo submitOrder(OrderSubmitVo vo) {
         orderSubmitVoThreadLocal.set(vo);
@@ -206,7 +207,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
                     responseVo.setOrder(order.getOrder());
 
                     //todo 远程扣减积分出现异常
-
+                    int i = 10 / 0;
                     return responseVo;
                 } else {
                     //锁定失败
