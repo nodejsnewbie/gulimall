@@ -151,7 +151,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         return orderConfirmVo;
     }
 
-    @GlobalTransactional
+    //    @GlobalTransactional
+    @Transactional
     @Override
     public SubmitOrderResponseVo submitOrder(OrderSubmitVo vo) {
         orderSubmitVoThreadLocal.set(vo);
@@ -219,6 +220,11 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
                 return responseVo;
             }
         }
+    }
+
+    @Override
+    public OrderEntity getOrderByOrderSn(String orderSn) {
+        return this.getOne(new QueryWrapper<OrderEntity>().eq("order_sn", orderSn));
     }
 
     /**
