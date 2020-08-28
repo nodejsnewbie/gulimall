@@ -17,16 +17,12 @@ import java.util.Map;
 @Configuration
 public class MyMQConfig {
 
-    @RabbitListener(queues = "order.release.order.queue")
-    public void listener(Message message, Channel channel, OrderEntity entity) {
-        System.out.println("收到了过期消息:" + entity.getOrderSn());
-        try {
-            //消费端手动设置手动消息成功
-            long deliveryTag = message.getMessageProperties().getDeliveryTag();
-            channel.basicAck(deliveryTag, false);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    /**
+     * 创建一个交换机
+     */
+    @Bean
+    public Exchange orderEventExchange() {
+        return new TopicExchange("order-event-exchange", true, false);
     }
 
     /**
@@ -47,14 +43,6 @@ public class MyMQConfig {
     @Bean
     public Queue orderReleaseOrderQueue() {
         return new Queue("order.release.order.queue", true, false, false);
-    }
-
-    /**
-     * 创建一个交换机
-     */
-    @Bean
-    public Exchange orderEventExchange() {
-        return new TopicExchange("order-event-exchange", true, false);
     }
 
     @Bean

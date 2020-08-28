@@ -19,6 +19,8 @@ import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import io.seata.spring.annotation.GlobalTransactional;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.weaver.ast.Or;
+import org.springframework.amqp.rabbit.connection.CorrelationData;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -72,6 +74,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
     @Autowired
     StringRedisTemplate redisTemplate;
+
+    @Autowired
+    RabbitTemplate rabbitTemplate;
 
     @Autowired
     ThreadPoolExecutor executor;
@@ -207,8 +212,10 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
                     responseVo.setCode(0);
                     responseVo.setOrder(order.getOrder());
 
-                    //todo 远程扣减积分出现异常
-                    int i = 10 / 0;
+                    //todo 模拟远程扣减积分出现异常
+//                    int i = 10 / 0;
+                    //创建订单成功发送消息
+                    rabbitTemplate.convertAndSend("order-event-exchange", "order.create.order", order.getOrder());
                     return responseVo;
                 } else {
                     //锁定失败
@@ -228,9 +235,25 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
     }
 
     /**
+     * 超时关闭订单
+     */
+    @Override
+    public void closeOrder(OrderEntity entity) {
+        log.info("关闭订单");
+        OrderEntity orderEntity = this.getById(entity.getId());
+        if (orderEntity.getStatus() == OrderStatusEnum.CREATE_NEW.getCode()) {
+            OrderEntity update = new OrderEntity();
+            update.setId(entity.getId());
+            update.setStatus(OrderStatusEnum.CANCLED.getCode());
+            this.updateById(update);
+        }
+    }
+
+    /**
      * 保存订单
      */
     private void saveOrder(OrderCreateTo order) {
+        log.info("保存订单");
         OrderEntity orderEntity = order.getOrder();
         orderEntity.setModifyTime(new Date());
         this.save(orderEntity);

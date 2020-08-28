@@ -3,6 +3,7 @@ package com.atguigu.gulimall.ware.listener;
 import com.atguigu.common.to.mq.StockLockedTo;
 import com.atguigu.gulimall.ware.service.WareSkuService;
 import com.rabbitmq.client.Channel;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 
 @RabbitListener(queues = {"stock.release.stock.queue"})
+@Slf4j
 @Service
 public class StockReleaseListener {
 
@@ -32,11 +34,13 @@ public class StockReleaseListener {
      */
     @RabbitHandler
     public void handleStockLockedRelease(StockLockedTo to, Message message, Channel channel) throws IOException {
-        System.out.println("收到了解锁库存的消息");
+        log.info("收到了解锁库存的消息");
         try {
             wareSkuService.unLockStock(to);
+            //回执消息消费成功
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
         } catch (Exception e) {
+            //回执消息消费失败，把消息重新放到消息队里里面
             channel.basicReject(message.getMessageProperties().getDeliveryTag(), true);
         }
     }

@@ -24,6 +24,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
@@ -37,6 +38,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service("wareSkuService")
+@Slf4j
 public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> implements WareSkuService {
 
     @Autowired
@@ -155,6 +157,7 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
                 throw new NoStockException(skuId);
             }
             for (Long wareId : wareIds) {
+                log.info("锁定库存");
                 Long count = wareSkuDao.lockSkuStock(skuId, wareId, hasStock.getNum());
                 if (count == 1) {
                     //成功
@@ -186,8 +189,6 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
         Long detailToId = detailTo.getId();
         WareOrderTaskDetailEntity taskDetailEntity = wareOrderTaskDetailService.getById(detailToId);
         if (taskDetailEntity != null) {
-            //解锁
-            System.out.println("解锁");
             WareOrderTaskEntity taskEntity = wareOrderTaskService.getById(id);
             R r = orderFeignService.getOrderStatus(taskEntity.getOrderSn());
             if (r.getCode() == 0) {
@@ -210,6 +211,7 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
      * 解锁库存
      */
     private void unLockStock(Long skuId, Long wareId, Integer num, Long taskDetailId) {
+        log.info("库存解锁");
         //库存解锁
         wareSkuDao.unLockStock(skuId, wareId, num);
         //更新库存工作单状态为已经解锁
