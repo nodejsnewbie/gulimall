@@ -1,5 +1,6 @@
 package com.atguigu.gulimall.ware.listener;
 
+import com.atguigu.common.to.mq.OrderTo;
 import com.atguigu.common.to.mq.StockLockedTo;
 import com.atguigu.gulimall.ware.service.WareSkuService;
 import com.rabbitmq.client.Channel;
@@ -34,7 +35,20 @@ public class StockReleaseListener {
      */
     @RabbitHandler
     public void handleStockLockedRelease(StockLockedTo to, Message message, Channel channel) throws IOException {
-        log.info("收到了解锁库存的消息");
+        log.info("收到了解锁库存的消息，准备解锁库存");
+        try {
+            wareSkuService.unLockStock(to);
+            //回执消息消费成功
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+        } catch (Exception e) {
+            //回执消息消费失败，把消息重新放到消息队里里面
+            channel.basicReject(message.getMessageProperties().getDeliveryTag(), true);
+        }
+    }
+
+    @RabbitHandler
+    public void handleOrderClose(OrderTo to, Message message, Channel channel) throws IOException {
+        log.info("收到了订单超时的消息，准备解锁库存");
         try {
             wareSkuService.unLockStock(to);
             //回执消息消费成功

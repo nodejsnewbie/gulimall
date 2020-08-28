@@ -1,13 +1,12 @@
 package com.atguigu.gulimall.order.config;
 
-import com.atguigu.gulimall.order.entity.OrderEntity;
-import com.rabbitmq.client.Channel;
-import org.springframework.amqp.core.*;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.core.Binding;
+import org.springframework.amqp.core.Exchange;
+import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.TopicExchange;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,16 +44,32 @@ public class MyMQConfig {
         return new Queue("order.release.order.queue", true, false, false);
     }
 
+    /**
+     * 绑定死信队列
+     */
     @Bean
     public Binding orderCreateOrderBinding() {
         return new Binding("order.delay.queue", Binding.DestinationType.QUEUE,
                 "order-event-exchange", "order.create.order", null);
     }
 
+    /**
+     * 绑定消息超时之后被业务监听处理的队列
+     */
     @Bean
     public Binding orderReleaseOrderBinding() {
         return new Binding("order.release.order.queue", Binding.DestinationType.QUEUE,
                 "order-event-exchange", "order.release.order", null);
+    }
+
+    /**
+     * 绑定解锁库存服务的队列
+     * 用于订单超时后，主动发消息到该队列解锁库存
+     */
+    @Bean
+    public Binding orderReleaseOtherBinding() {
+        return new Binding("stock.release.stock.queue", Binding.DestinationType.QUEUE,
+                "order-event-exchange", "order.release.other.#", null);
     }
 
 }
