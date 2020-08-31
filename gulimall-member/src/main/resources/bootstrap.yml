@@ -16,6 +16,16 @@ spring:
     username: root
     password: root
 
+  thymeleaf:
+    cache: false
+
+  session:
+    store-type: redis
+
+  redis:
+    host: 59.110.44.147
+    port: 6379
+
 mybatis-plus:
   mapper-locations: classpath:/mapper/**/*.xml
   global-config:
