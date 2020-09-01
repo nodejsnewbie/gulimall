@@ -7,9 +7,7 @@ import com.atguigu.gulimall.order.vo.PayVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 public class PayWebController {
@@ -25,6 +23,8 @@ public class PayWebController {
         PayVo payVo = orderService.getOrderPay(orderSn);
 //        String pay = alipayTemplate.pay(payVo);
 //        System.out.println(pay);
+
+        orderService.handlePayResult(payVo);
 
         return "redirect:http://member.gulimall.com/memberOrder.html";
     }
