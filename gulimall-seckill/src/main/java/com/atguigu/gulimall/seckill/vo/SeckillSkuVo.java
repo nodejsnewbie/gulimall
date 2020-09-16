@@ -1,29 +1,15 @@
-package com.atguigu.gulimall.coupon.entity;
-
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
-
-import java.math.BigDecimal;
-import java.io.Serializable;
+package com.atguigu.gulimall.seckill.vo;
 
 import lombok.Data;
 
-/**
- * 秒杀活动商品关联
- *
- * @author cuiyue
- * @email 380920705@qq.coom
- * @date 2020-05-13 15:35:45
- */
+import java.math.BigDecimal;
+
 @Data
-@TableName("sms_seckill_sku_relation")
-public class SeckillSkuRelationEntity implements Serializable {
-    private static final long serialVersionUID = 1L;
+public class SeckillSkuVo {
 
     /**
      * id
      */
-    @TableId
     private Long id;
     /**
      * 活动id
