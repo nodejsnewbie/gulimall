@@ -63,8 +63,11 @@ public class SeckkillServiceImpl implements SeckkillService {
             long startTime = sessions.getStartTime().getTime();
             long endTime = sessions.getEndTime().getTime();
             String key = SESSIONS_CACHE_PREFIX + startTime + "_" + endTime;
-            List<String> ids = sessions.getRelationSkus().stream().map(item -> item.getSkuId().toString()).collect(Collectors.toList());
-            redisTemplate.opsForList().leftPushAll(key, ids);
+            Boolean hasKey = redisTemplate.hasKey(key);
+            if (!hasKey) {
+                List<String> ids = sessions.getRelationSkus().stream().map(item -> item.getPromotionSessionId() + "_" + item.getSkuId()).collect(Collectors.toList());
+                redisTemplate.opsForList().leftPushAll(key, ids);
+            }
         });
     }
 
@@ -75,28 +78,32 @@ public class SeckkillServiceImpl implements SeckkillService {
         sesionData.forEach(sessions -> {
             BoundHashOperations<String, Object, Object> ops = redisTemplate.boundHashOps(SKUKILL_CACHE_PREFIX);
             sessions.getRelationSkus().stream().forEach(seckillSkuVo -> {
-                SeckillSkuRedisTo redisTo = new SeckillSkuRedisTo();
-                //1.sku的基本数据
-                R r = productFeignService.getSkuInfo(seckillSkuVo.getSkuId());
-                if (r.getCode() == 0) {
-                    SkuInfoVo skuInfo = r.getData("skuInfo", new TypeReference<SkuInfoVo>() {
-                    });
-                    redisTo.setSkuInfoVo(skuInfo);
+                //判断之前redis是否已经保存过sku信息,有就不保存了
+                String hashKey = seckillSkuVo.getPromotionSessionId() + "_" + seckillSkuVo.getSkuId();
+                Boolean skuHasKey = ops.hasKey(hashKey);
+                if (!skuHasKey) {
+                    SeckillSkuRedisTo redisTo = new SeckillSkuRedisTo();
+                    //1.sku的基本数据
+                    R r = productFeignService.getSkuInfo(seckillSkuVo.getSkuId());
+                    if (r.getCode() == 0) {
+                        SkuInfoVo skuInfo = r.getData("skuInfo", new TypeReference<SkuInfoVo>() {
+                        });
+                        redisTo.setSkuInfoVo(skuInfo);
+                    }
+                    //2.sku的秒杀信息
+                    BeanUtils.copyProperties(seckillSkuVo, redisTo);
+                    //3.设置当前商品的秒杀时间信息
+                    redisTo.setStartTime(sessions.getStartTime().getTime());
+                    redisTo.setEndTime(sessions.getEndTime().getTime());
+                    //4.设置随机码
+                    String randomCode = UUID.randomUUID().toString().replace("-", "");
+                    redisTo.setRandomCode(randomCode);
+                    String hashValue = JSON.toJSONString(redisTo);
+                    ops.put(hashKey, hashValue);
+                    //5.设置分布式的信号量，商品可以秒杀的数量作为信号量,限流
+                    RSemaphore semaphore = redissonClient.getSemaphore(SKU_STOCK_SEMAPHONE + randomCode);
+                    semaphore.trySetPermits(seckillSkuVo.getSeckillCount());
                 }
-                //2.sku的秒杀信息
-                BeanUtils.copyProperties(seckillSkuVo, redisTo);
-                //3.设置当前商品的秒杀时间信息
-                redisTo.setStartTime(sessions.getStartTime().getTime());
-                redisTo.setEndTime(sessions.getEndTime().getTime());
-                //4.设置随机码
-                String randomCode = UUID.randomUUID().toString().replace("-", "");
-                redisTo.setRandomCode(randomCode);
-                //5.设置分布式的信号量，商品可以秒杀的数量作为信号量,限流
-                RSemaphore semaphore = redissonClient.getSemaphore(SKU_STOCK_SEMAPHONE + randomCode);
-                semaphore.trySetPermits(seckillSkuVo.getSeckillCount());
-                String hashKey = seckillSkuVo.getSkuId().toString();
-                String hashValue = JSON.toJSONString(redisTo);
-                ops.put(hashKey, hashValue);
             });
         });
     }
