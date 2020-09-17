@@ -37,4 +37,5 @@ http://localhost:88/api/product/brand/list
 http://localhost:88/api/cart/test/one
 http://localhost:40000/cart/test/one
 
-http://localhost:25000/currentSeckillSkus
+//获取当前秒杀的商品
+http://seckill.gulimall.com/currentSeckillSkus
