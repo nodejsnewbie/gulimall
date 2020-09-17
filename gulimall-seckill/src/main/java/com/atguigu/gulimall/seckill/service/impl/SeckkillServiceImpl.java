@@ -9,6 +9,7 @@ import com.atguigu.gulimall.seckill.service.SeckkillService;
 import com.atguigu.gulimall.seckill.to.SeckillSkuRedisTo;
 import com.atguigu.gulimall.seckill.vo.SeckillSessionsWithSkus;
 import com.atguigu.gulimall.seckill.vo.SkuInfoVo;
+import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RSemaphore;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
@@ -17,11 +18,11 @@ import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class SeckkillServiceImpl implements SeckkillService {
 
     @Autowired
@@ -53,6 +54,38 @@ public class SeckkillServiceImpl implements SeckkillService {
             //2.2 缓存活动的关联商品信息
             saveSessionSkuInfo(sesionData);
         }
+    }
+
+    /**
+     * 返回当前时间可以参与的秒杀商品信息
+     */
+    @Override
+    public List<SeckillSkuRedisTo> getCurrentSeckillSkus() {
+        //1.确定当前时间属于哪个秒杀场次
+        long currentTime = new Date().getTime();
+        Set<String> keys = redisTemplate.keys(SESSIONS_CACHE_PREFIX + "*");
+        for (String key : keys) {
+            //key --> seckill:sessions:1600300800000_1600308000000
+            String replace = key.replace(SESSIONS_CACHE_PREFIX, "");
+            String[] time = replace.split("_");
+            long startTime = Long.parseLong(time[0]);
+            long endTime = Long.parseLong(time[1]);
+            if (currentTime >= startTime && currentTime <= endTime) {
+                //2.获取这个秒杀场次徐还要的所有商品信息
+                List<String> range = redisTemplate.opsForList().range(key, -100, 100);
+                BoundHashOperations<String, String, String> ops = redisTemplate.boundHashOps(SKUKILL_CACHE_PREFIX);
+                List<String> skus = ops.multiGet(range);
+                if (skus != null && skus.size() > 0) {
+                    List<SeckillSkuRedisTo> seckillSkuRedisTos = skus.stream().map(item -> {
+                        SeckillSkuRedisTo seckillSkuRedisTo = JSON.parseObject(item, SeckillSkuRedisTo.class);
+                        return seckillSkuRedisTo;
+                    }).collect(Collectors.toList());
+                    return seckillSkuRedisTos;
+                }
+                break;
+            }
+        }
+        return null;
     }
 
     /**

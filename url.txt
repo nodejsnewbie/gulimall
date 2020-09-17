@@ -36,3 +36,5 @@ http://localhost:88/api/search/haha
 http://localhost:88/api/product/brand/list
 http://localhost:88/api/cart/test/one
 http://localhost:40000/cart/test/one
+
+http://localhost:25000/currentSeckillSkus
